@@ -18,74 +18,54 @@ public class Main {
             IllegalAccessException,
             InstantiationException,
             NoSuchMethodException,
-            InvocationTargetException
-    {
-//        loaderErrorTest();
-        selfLoaderTest();
-    }
-
-    static void loaderErrorTest() throws
-            MalformedURLException,
-            ClassNotFoundException,
-            IllegalAccessException,
-            InstantiationException,
-            NoSuchMethodException,
-            InvocationTargetException
-    {
+            InvocationTargetException {
         Main m = new Main();
-        String filePath1 = "/Users/mubi/IdeaProjects/bundle/demo1/target/demo1-1.0-SNAPSHOT.jar";
-        URLClassLoader ul1 = new URLClassLoader(m.convert2URLArray(filePath1));
+        String hello1Path = "/Users/mubi/IdeaProjects/bundle/demo2/src/main/lib/demo1-1.0-SNAPSHOT.jar";
+        String hello2Path = "/Users/mubi/IdeaProjects/bundle/demo3/src/main/lib/demo1-2.0-SNAPSHOT.jar";
+        String hello3Path = "/Users/mubi/IdeaProjects/bundle/demo1/target/demo1-3.0-SNAPSHOT.jar";
+        URLClassLoader helloClassLoader1 = new URLClassLoader(m.convert2URLArray(hello1Path));
+        URLClassLoader helloClassLoader2 = new URLClassLoader(m.convert2URLArray(hello2Path));
+        URLClassLoader helloClassLoader3 = new URLClassLoader(m.convert2URLArray(hello3Path));
 
-        String filePath2 = "/Users/mubi/IdeaProjects/bundle/demo2/target/demo2-1.0-SNAPSHOT.jar";
-        URLClassLoader ul2 = new URLClassLoader(m.convert2URLArray(filePath2));
 
         /**
-         * 正常加载Hello类
+         * 正常加载Hello类 版本3
          */
-        Class<?> helloClass = ul1.loadClass("com.dq.bundle.demo1.Hello");
-        Object helloInstance = helloClass.newInstance();
-        Method sayMethod = helloClass.getMethod("say", String.class);
+        Class<?> helloClass3 = helloClassLoader3.loadClass("com.dq.bundle.demo1.Hello");
+        Object helloInstance = helloClass3.newInstance();
+        Method sayMethod = helloClass3.getMethod("say", String.class);
         sayMethod.invoke(helloInstance, "world");
 
+        // User类使用 Hello 版本1
+        String userPath = "/Users/mubi/IdeaProjects/bundle/demo2/target/demo2-3.0-SNAPSHOT.jar";
+        SelfClassLoader userLoader = new SelfClassLoader(m.convert2URLArray(userPath),
+                helloClassLoader1);
+
+        // Teacher类使用 Hello 版本2
+        String teacherPath = "/Users/mubi/IdeaProjects/bundle/demo3/target/demo3-3.0-SNAPSHOT.jar";
+        SelfClassLoader teacherLoader = new SelfClassLoader(m.convert2URLArray(teacherPath),
+                helloClassLoader2);
+
+
         /**
-         * ul2 正常加载User类，但是无法加载其依赖的 Hello类，会报错ClassNotFoundException
+         *  正常加载User类, 并使用传递过来的 helloClassLoader1 正常加载Hello类
          */
-        Class<?> userClass = ul2.loadClass("com.dq.bundle.demo2.User");
+        Class<?> helloClass1 = helloClassLoader1.loadClass("com.dq.bundle.demo1.Hello");
+        Object helloInstance1 = helloClass1.newInstance();
+        Class<?> userClass = userLoader.loadClass("com.dq.bundle.demo2.User");
         Object userInstance = userClass.newInstance();
-        Method welcomeMethod = userClass.getMethod("welcome", helloClass);
-        welcomeMethod.invoke(userInstance, helloInstance);
-    }
-
-    static void selfLoaderTest() throws
-            MalformedURLException,
-            ClassNotFoundException,
-            IllegalAccessException,
-            InstantiationException,
-            NoSuchMethodException,
-            InvocationTargetException
-    {
-        Main m = new Main();
-        String filePath1 = "/Users/mubi/IdeaProjects/bundle/demo1/target/demo1-1.0-SNAPSHOT.jar";
-        URLClassLoader ul1 = new URLClassLoader(m.convert2URLArray(filePath1));
-
-        String filePath2 = "/Users/mubi/IdeaProjects/bundle/demo2/target/demo2-1.0-SNAPSHOT.jar";
-        SelfClassLoader ul2 = new SelfClassLoader(m.convert2URLArray(filePath2), ul1);
+        Method welcomeMethod = userClass.getMethod("welcome", helloClass1);
+        welcomeMethod.invoke(userInstance, helloInstance1);
 
         /**
-         * 正常加载Hello类
+         * 正常加载Teacher类，并使用传递过来的 helloClassLoader2 正常加载Hello类
          */
-        Class<?> helloClass = ul1.loadClass("com.dq.bundle.demo1.Hello");
-        Object helloInstance = helloClass.newInstance();
-        Method sayMethod = helloClass.getMethod("say", String.class);
-        sayMethod.invoke(helloInstance, "world");
-
-        /**
-         *  ul2正常加载User类, 并使用传递过来的ul1正常加载Hello类
-         */
-        Class<?> userClass = ul2.loadClass("com.dq.bundle.demo2.User");
-        Object userInstance = userClass.newInstance();
-        Method welcomeMethod = userClass.getMethod("welcome", helloClass);
-        welcomeMethod.invoke(userInstance, helloInstance);
+        Class<?> helloClass2 = helloClassLoader2.loadClass("com.dq.bundle.demo1.Hello");
+        Object helloInstance2 = helloClass2.newInstance();
+        Class<?> teacherClass = teacherLoader.loadClass("com.dq.bundle.demo3.Teacher");
+        Object teacherInstance = teacherClass.newInstance();
+        Method welcomeTeacherMethod = teacherClass.getMethod("welcome", helloClass2);
+        welcomeTeacherMethod.invoke(teacherInstance, helloInstance2);
     }
 
     /**
@@ -94,7 +74,7 @@ public class Main {
     static class SelfClassLoader extends URLClassLoader {
         private ClassLoader parentClassLoader;
 
-        public SelfClassLoader(URL[] urls, ClassLoader classLoader){
+        public SelfClassLoader(URL[] urls, ClassLoader classLoader) {
             super(urls);
             this.parentClassLoader = classLoader;
         }
@@ -108,7 +88,7 @@ public class Main {
             return super.loadClass(name);
         }
 
-        public Class<?> loadFromParent(String name){
+        public Class<?> loadFromParent(String name) {
             // 从当前classLoader加载
             Class<?> loadClass = super.findLoadedClass(name);
 
@@ -122,9 +102,9 @@ public class Main {
             }
             return loadClass;
         }
-     }
+    }
 
-    private URL[] convert2URLArray(String filePath) throws MalformedURLException{
+    private URL[] convert2URLArray(String filePath) throws MalformedURLException {
         File f = new File(filePath);
         URL[] urls = new URL[1];
         urls[0] = f.toURI().toURL();

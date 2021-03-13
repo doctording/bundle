@@ -1,19 +1,19 @@
-package com.dq.bundle.demo2;
+package com.dq.bundle.demo3;
 
 import com.dq.bundle.demo1.Hello;
 
 /**
  * @Author mubi
- * @Date 2021/3/13 10:38
+ * @Date 2021/3/13 16:24
  */
-public class User {
+public class Teacher {
     public void welcome(Hello hello) {
-        hello.say("user");
+        hello.say("teacher");
     }
 
     public static void main(String[] args) {
-        User user = new User();
+        Teacher teacher = new Teacher();
         Hello hello = new Hello();
-        user.welcome(hello);
+        teacher.welcome(hello);
     }
 }

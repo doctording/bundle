@@ -5,7 +5,7 @@
     <parent>
         <artifactId>bundle</artifactId>
         <groupId>com.dq</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,12 +13,20 @@
 
     <dependencies>
         <!--模块依赖-->
+        <!--<dependency>-->
+            <!--<groupId>com.dq</groupId>-->
+            <!--<artifactId>demo1</artifactId>-->
+            <!--<version>1.0-SNAPSHOT</version>-->
+            <!--&lt;!&ndash;设置为provide, 打包的时候不会打包进去&ndash;&gt;-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.dq</groupId>
             <artifactId>demo1</artifactId>
             <version>1.0-SNAPSHOT</version>
             <!--设置为provide, 打包的时候不会打包进去-->
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/lib/demo1-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
     </dependencies>
 
