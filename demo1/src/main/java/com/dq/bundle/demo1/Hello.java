@@ -6,6 +6,6 @@ package com.dq.bundle.demo1;
  */
 public class Hello {
     public void say(String what) {
-        System.out.println("hello:" + what);
+        System.out.println("hello3:" + what);
     }
 }

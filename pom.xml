@@ -7,11 +7,12 @@
     <groupId>com.dq</groupId>
     <artifactId>bundle</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
     <modules>
         <module>demo1</module>
         <module>demo2</module>
         <module>bundle-main</module>
+        <module>demo3</module>
     </modules>
 
     <properties>
